@@ -17,6 +17,7 @@ application {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("no.tornado:tornadofx:1.7.20")
+    implementation("org.apache.kafka:kafka-clients:3.1.0")
     testImplementation(kotlin("test-junit"))
 }
 
