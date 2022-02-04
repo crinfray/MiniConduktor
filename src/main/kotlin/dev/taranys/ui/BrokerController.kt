@@ -3,6 +3,7 @@ package dev.taranys.ui
 import dev.taranys.kafka.Broker
 import dev.taranys.kafka.connect
 import dev.taranys.ui.TopicListingModel.Companion.toModel
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
@@ -17,13 +18,19 @@ import java.util.Properties
  */
 class BrokerController : Controller() {
     val brokerConfig = SimpleObjectProperty<Properties>()
+    val brokerLoaded = SimpleBooleanProperty(false)
     val bootstrapServers = SimpleStringProperty("localhost:9092")
     val additionalProperties = SimpleStringProperty("")
     val topics = observableListOf<TopicListingModel>()
 
     fun connectToBroker(): Broker {
+        brokerLoaded.set(false)
+        topics.setAll()
         brokerConfig.value = brokerConfig(bootstrapServers.value, additionalProperties.value)
-        return connect(brokerConfig.value).also { updateTopics(it.topics) }
+        return connect(brokerConfig.value).also {
+            updateTopics(it.topics)
+            brokerLoaded.set(true)
+        }
     }
 
     private fun updateTopics(brokerTopics: Map<String, TopicListing>) {

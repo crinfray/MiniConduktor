@@ -2,13 +2,16 @@ package dev.taranys.ui
 
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Pos
+import javafx.scene.control.Alert
 import tornadofx.Scope
 import tornadofx.View
 import tornadofx.action
 import tornadofx.addClass
+import tornadofx.alert
 import tornadofx.box
 import tornadofx.button
 import tornadofx.column
+import tornadofx.fail
 import tornadofx.field
 import tornadofx.fieldset
 import tornadofx.find
@@ -32,8 +35,6 @@ import tornadofx.vbox
 class BrokerView : View() {
 
     private val controller: BrokerController by inject()
-
-    private val brokerLoaded = SimpleBooleanProperty(false)
     private val loading = SimpleBooleanProperty(false)
 
     override val root = vbox {
@@ -55,8 +56,10 @@ class BrokerView : View() {
                         runAsync {
                             controller.connectToBroker()
                         } ui {
-                            brokerLoaded.set(true)
                             loading.set(false)
+                        } fail {
+                            loading.set(false)
+                            alert(Alert.AlertType.ERROR, "Broker connexion error", "${it.message}\n${it.cause?.message}")
                         }
                     }
                 }
@@ -88,13 +91,13 @@ class BrokerView : View() {
                 }
             }
             smartResize()
-            removeWhen { brokerLoaded.not().or(loading) }
+            removeWhen { controller.brokerLoaded.not().or(loading) }
         }
         label("Connect to broker to view topics list") {
             style {
                 padding = box(10.px)
             }
-            removeWhen { brokerLoaded.or(loading) }
+            removeWhen { controller.brokerLoaded.or(loading) }
         }
     }
 }
