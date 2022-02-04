@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.6.0"
     application
     id("org.openjfx.javafxplugin") version "0.0.11"
 }
@@ -16,6 +16,8 @@ application {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.0")
     implementation("no.tornado:tornadofx:1.7.20")
     implementation("org.apache.kafka:kafka-clients:3.1.0")
     testImplementation(kotlin("test-junit"))

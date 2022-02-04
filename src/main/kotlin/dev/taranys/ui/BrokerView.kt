@@ -1,20 +1,22 @@
 package dev.taranys.ui
 
-import dev.taranys.ui.TopicListingModel.Companion.toModel
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Pos
+import tornadofx.Scope
 import tornadofx.View
 import tornadofx.action
 import tornadofx.addClass
-import tornadofx.asObservable
 import tornadofx.box
 import tornadofx.button
 import tornadofx.column
 import tornadofx.field
 import tornadofx.fieldset
+import tornadofx.find
 import tornadofx.form
+import tornadofx.hbox
 import tornadofx.label
 import tornadofx.prefWidth
+import tornadofx.progressindicator
 import tornadofx.px
 import tornadofx.removeWhen
 import tornadofx.smartResize
@@ -30,11 +32,9 @@ import tornadofx.vbox
 class BrokerView : View() {
 
     private val controller: BrokerController by inject()
-    private val bootstrapServers = SimpleStringProperty("localhost:9092")
-    private val additionalProperties = SimpleStringProperty("")
 
-    private var topicsForTable = mutableListOf<TopicListingModel>().asObservable()
-    private var brokerLoaded = SimpleBooleanProperty(false)
+    private val brokerLoaded = SimpleBooleanProperty(false)
+    private val loading = SimpleBooleanProperty(false)
 
     override val root = vbox {
         label("Broker Setup") {
@@ -43,21 +43,20 @@ class BrokerView : View() {
         form {
             fieldset {
                 field("Bootstrap servers:") {
-                    textfield(bootstrapServers)
+                    textfield(controller.bootstrapServers)
                 }
                 field("Additional Properties:") {
-                    textarea(additionalProperties)
+                    textarea(controller.additionalProperties)
                 }
 
                 button("Connect to broker") {
                     action {
+                        loading.set(true)
                         runAsync {
-                            controller.connectToBroker(bootstrapServers.value, additionalProperties.value)
+                            controller.connectToBroker()
                         } ui {
-                            topicsForTable.apply {
-                                removeAll { true }
-                                addAll(it.topics.map { it.value.toModel() }) }
                             brokerLoaded.set(true)
+                            loading.set(false)
                         }
                     }
                 }
@@ -66,20 +65,36 @@ class BrokerView : View() {
         label("Topics") {
             addClass(Styles.h2)
         }
-        tableview(topicsForTable) {
+        hbox(alignment = Pos.CENTER) {
+            progressindicator()
+            removeWhen { loading.not() }
+        }
+        tableview(controller.topics) {
             style {
                 maxHeight = 150.px
             }
             column("ID", TopicListingModel::topicId).prefWidth(200.0)
             column("Name", TopicListingModel::name)
+            column("View Records", TopicListingModel::name).cellFormat {
+                graphic = hbox {
+                    button("View Records") {
+                        action {
+                            val scope = Scope()
+                            val controller = TopicConsumerController(it, controller.brokerConfig.value)
+                            setInScope(controller, scope)
+                            find(TopicConsumerView::class, scope).openModal()
+                        }
+                    }
+                }
+            }
             smartResize()
-            removeWhen { brokerLoaded.not() }
+            removeWhen { brokerLoaded.not().or(loading) }
         }
         label("Connect to broker to view topics list") {
             style {
                 padding = box(10.px)
             }
-            removeWhen { brokerLoaded }
+            removeWhen { brokerLoaded.or(loading) }
         }
     }
 }
