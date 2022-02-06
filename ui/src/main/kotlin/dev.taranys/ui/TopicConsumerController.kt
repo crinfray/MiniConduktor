@@ -1,5 +1,6 @@
 package dev.taranys.ui
 
+import dev.taranys.kafka.Record
 import dev.taranys.kafka.consumer
 import dev.taranys.kafka.flow
 import javafx.beans.property.SimpleBooleanProperty
@@ -8,7 +9,6 @@ import javafx.concurrent.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import tornadofx.Controller
 import tornadofx.observableListOf
 import java.util.Properties
@@ -18,7 +18,7 @@ import java.util.Properties
  */
 class TopicConsumerController(val topicName: String, brokerProperties: Properties) : Controller() {
 
-    val records = observableListOf<ConsumerRecord<String, String>>()
+    val records = observableListOf<Record>()
     val consumer = consumer(topicName, brokerProperties)
     val stopped = SimpleBooleanProperty(true)
 

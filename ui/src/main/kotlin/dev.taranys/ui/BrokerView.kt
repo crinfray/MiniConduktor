@@ -76,9 +76,9 @@ class BrokerView : View() {
             style {
                 maxHeight = 150.px
             }
-            column("ID", TopicListingModel::topicId).prefWidth(200.0)
-            column("Name", TopicListingModel::name)
-            column("View Records", TopicListingModel::name).cellFormat {
+            column("ID", TopicModel::topicId).prefWidth(200.0)
+            column("Name", TopicModel::name)
+            column("View Records", TopicModel::name).cellFormat {
                 graphic = hbox {
                     button("View Records") {
                         action {

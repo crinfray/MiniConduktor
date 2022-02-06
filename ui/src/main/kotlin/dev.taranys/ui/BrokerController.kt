@@ -1,16 +1,14 @@
 package dev.taranys.ui
 
 import dev.taranys.kafka.Broker
+import dev.taranys.kafka.Topic
+import dev.taranys.kafka.brokerConfig
 import dev.taranys.kafka.connect
-import dev.taranys.ui.TopicListingModel.Companion.toModel
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
-import org.apache.kafka.clients.admin.TopicListing
 import tornadofx.Controller
 import tornadofx.observableListOf
-import java.io.StringReader
 import java.util.Properties
 
 /**
@@ -21,7 +19,7 @@ class BrokerController : Controller() {
     val brokerLoaded = SimpleBooleanProperty(false)
     val bootstrapServers = SimpleStringProperty("localhost:9092")
     val additionalProperties = SimpleStringProperty("")
-    val topics = observableListOf<TopicListingModel>()
+    val topics = observableListOf<TopicModel>()
 
     fun connectToBroker(): Broker {
         brokerLoaded.set(false)
@@ -33,12 +31,9 @@ class BrokerController : Controller() {
         }
     }
 
-    private fun updateTopics(brokerTopics: Map<String, TopicListing>) {
-        topics.setAll(brokerTopics.map { it.value.toModel() })
+    private fun updateTopics(brokerTopics: List<Topic>) {
+        topics.setAll(brokerTopics.map { it.toModel() })
     }
 
-    private fun brokerConfig(bootstrapServers: String, props: String) = Properties().apply {
-        load(StringReader(props))
-        put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
-    }
+    private fun Topic.toModel() = TopicModel(name, id)
 }

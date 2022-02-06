@@ -1,9 +1,10 @@
 package dev.taranys.ui
 
+import dev.taranys.kafka.Record
 import javafx.geometry.Pos
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import tornadofx.Fragment
 import tornadofx.action
+import tornadofx.addClass
 import tornadofx.borderpane
 import tornadofx.cache
 import tornadofx.hbox
@@ -13,9 +14,6 @@ import tornadofx.listview
 import tornadofx.progressindicator
 import tornadofx.togglebutton
 import tornadofx.vbox
-import java.time.Instant.ofEpochMilli
-import java.time.LocalDateTime.ofInstant
-import java.time.ZoneId.systemDefault
 import java.time.format.DateTimeFormatter
 
 /**
@@ -30,18 +28,20 @@ class TopicConsumerView : Fragment() {
     }
 
     override val root = borderpane {
-        top = label(controller.topicName)
+        top = label(controller.topicName) {
+            addClass(Styles.h2)
+        }
         center = listview(controller.records) {
             cellFormat {
                 graphic = cache {
                     vbox {
                         hbox(spacing = 5) {
                             label("Date: ${item.viewDate()}")
-                            label("Partition: ${item.partition()}")
+                            label("Partition: ${item.partition}")
                         }
                         hbox(spacing = 5) {
-                            label("Key: ${item.key()}")
-                            label("Value: ${item.value()}")
+                            label("Key: ${item.key}")
+                            label("Value: ${item.value}")
                         }
                     }
                 }
@@ -79,4 +79,4 @@ class TopicConsumerView : Fragment() {
 }
 
 private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-private fun ConsumerRecord<String, String>.viewDate() = ofInstant(ofEpochMilli(timestamp()), systemDefault()).format(formatter)
+private fun Record.viewDate() = date.format(formatter)
