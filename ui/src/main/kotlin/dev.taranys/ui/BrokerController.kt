@@ -17,7 +17,7 @@ import java.util.Properties
 class BrokerController : Controller() {
     val brokerConfig = SimpleObjectProperty<Properties>()
     val brokerLoaded = SimpleBooleanProperty(false)
-    val bootstrapServers = SimpleStringProperty("localhost:9092")
+    val bootstrapServers = SimpleStringProperty("")
     val additionalProperties = SimpleStringProperty("")
     val topics = observableListOf<TopicModel>()
 

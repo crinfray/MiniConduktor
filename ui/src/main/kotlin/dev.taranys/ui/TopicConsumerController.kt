@@ -31,13 +31,11 @@ class TopicConsumerController(val topicName: String, brokerProperties: Propertie
     }
 
     fun start() {
-        println("Starting polling")
         scheduledService.restart()
         stopped.value = false
     }
 
     fun stop() {
-        println("Stopping polling")
         scheduledService.cancel()
         stopped.value = true
     }
